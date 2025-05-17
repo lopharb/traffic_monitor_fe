@@ -15,6 +15,7 @@
 			:show="isModalOpen"
 			:lat="selectedMarker.position[0]"
 			:lng="selectedMarker.position[1]"
+			:stream-url="selectedMarker.streamUrl"
 			@update:show="handleModalClose"
 		/>
 	</div>
@@ -23,6 +24,7 @@
 <script>
 import { LMap, LTileLayer, LMarker, LPopup } from "vue3-leaflet";
 import MarkerModal from "../components/MarkerModal.vue";
+import axios from "axios";
 
 export default {
 	name: "HomeView",
@@ -36,7 +38,7 @@ export default {
 	data() {
 		return {
 			zoom: 13,
-			center: [51.505, -0.09],
+			center: [53.893009, 27.567444],
 			url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright ">OpenStreetMap</a> contributors',
 			markers: [],
@@ -44,10 +46,21 @@ export default {
 			isModalOpen: false,
 		};
 	},
+	mounted() {
+		this.fetchMarkers();
+	},
 	methods: {
+		async fetchMarkers() {
+			try {
+				const response = await axios.get("http://localhost:8000/api/v1/markers");
+				this.markers = response.data.map((m) => ({ ...m, streamUrl: `http://localhost:8000/api/v1/${m.streamUrl}` }));
+			} catch (error) {
+				console.error("Failed to fetch markers:", error);
+			}
+		},
 		addMarker(event) {
 			const { latlng } = event;
-			this.markers.push({ position: [latlng.lat, latlng.lng] });
+			this.markers.push({ position: [latlng.lat, latlng.lng], name: "New Marker", streamUrl: "detect/video_stream" });
 		},
 		openModal(marker) {
 			this.selectedMarker = marker;
@@ -63,6 +76,9 @@ export default {
 <style scoped>
 .map {
 	border-radius: 15px;
-	height: 70vh;
+	height: 80vh;
+	overflow: hidden;
+	width: 90%;
+	margin: 10px auto 10px auto;
 }
 </style>
