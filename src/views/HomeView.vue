@@ -1,29 +1,44 @@
 <!-- src/views/Home.vue -->
 <template>
-	<div>
-		<div class="map">
-			<l-map ref="map" :zoom="zoom" :center="center" @click="addMarker" style="height: 100%; width: 100%">
-				<l-tile-layer :url="url" :attribution="attribution" />
-				<l-marker v-for="(marker, index) in markers" :key="index" :lat-lng="marker.position" @click="openModal(marker)">
-					<l-popup> Marker at {{ marker.position }} </l-popup>
-				</l-marker>
-			</l-map>
-		</div>
+	<table class="content-table">
+		<tr>
+			<td style="width: 80%">
+				<div class="map-container">
+					<div class="map">
+						<l-map ref="map" :zoom="zoom" :center="center" @click="addMarker" style="height: 100%; width: 100%">
+							<l-tile-layer :url="url" :attribution="attribution" />
+							<l-marker
+								v-for="(marker, index) in markers"
+								:key="index"
+								:lat-lng="marker.position"
+								@click="openModal(marker)"
+							>
+								<l-popup> Marker at {{ marker.position }} </l-popup>
+							</l-marker>
+						</l-map>
+					</div>
 
-		<MarkerModal
-			v-if="selectedMarker"
-			:show="isModalOpen"
-			:lat="selectedMarker.position[0]"
-			:lng="selectedMarker.position[1]"
-			:stream-url="selectedMarker.streamUrl"
-			@update:show="handleModalClose"
-		/>
-	</div>
+					<MarkerModal
+						v-if="selectedMarker"
+						:show="isModalOpen"
+						:lat="selectedMarker.position[0]"
+						:lng="selectedMarker.position[1]"
+						:stream-url="selectedMarker.streamUrl"
+						@update:show="handleModalClose"
+					/>
+				</div>
+			</td>
+			<td>
+				<div class="marker-list-container"><MarkerList :markers="markers" @marker-selected="centerOnMarker" /></div>
+			</td>
+		</tr>
+	</table>
 </template>
 
 <script>
 import { LMap, LTileLayer, LMarker, LPopup } from "vue3-leaflet";
 import MarkerModal from "../components/MarkerModal.vue";
+import MarkerList from "@/components/MarkerList.vue";
 import axios from "axios";
 
 export default {
@@ -34,6 +49,7 @@ export default {
 		LMarker,
 		LPopup,
 		MarkerModal,
+		MarkerList,
 	},
 	data() {
 		return {
@@ -69,16 +85,40 @@ export default {
 		handleModalClose(isOpen) {
 			this.isModalOpen = isOpen;
 		},
+		centerOnMarker(marker) {
+			this.center = marker.position;
+			this.zoom = 17; // Optional: zoom in on selection
+			if (this.$refs.map) {
+				console.log("here");
+				const map = this.$refs.map;
+				map.setView(this.center, this.zoom); // Zoom level 17
+			}
+		},
 	},
 };
 </script>
 
 <style scoped>
 .map {
-	border-radius: 15px;
 	height: 80vh;
 	overflow: hidden;
-	width: 90%;
-	margin: 10px auto 10px auto;
+	width: 100%;
+	border-radius: 10px 0 0 10px;
+}
+.content-table {
+	display: table;
+	width: 100%;
+	height: 100%;
+	table-layout: fixed;
+	margin: 10px;
+}
+.map-container {
+	width: 100%;
+	height: 100%;
+}
+.marker-list-container {
+	width: 100%;
+	height: 100%;
+	border-radius: 0 10px 10px 0;
 }
 </style>
