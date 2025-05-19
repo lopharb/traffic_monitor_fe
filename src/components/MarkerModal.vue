@@ -1,12 +1,31 @@
-<!-- src/components/MarkerModal.vue -->
 <template>
-	<div v-if="show" class="modal-overlay">
+	<div v-if="show" class="modal-overlay" @click.self="close">
 		<div class="modal">
 			<h2>Marker Details</h2>
 			<p><strong>Latitude:</strong> {{ lat }}</p>
 			<p><strong>Longitude:</strong> {{ lng }}</p>
 
-			<div class="iframe-container" v-if="streamUrl"><img :src="streamUrl" /></div>
+			<!-- Tabs -->
+			<div class="tabs">
+				<button :class="['tab', { active: activeTab === 'stream' }]" @click="activeTab = 'stream'">Stream</button>
+				<button :class="['tab', { active: activeTab === 'stats' }]" @click="activeTab = 'stats'">Stats</button>
+			</div>
+
+			<!-- Content -->
+			<div class="modal-content">
+				<!-- Stream Tab -->
+				<div v-show="activeTab === 'stream'" class="tab-pane">
+					<div class="iframe-container" v-if="streamUrl">
+						<img :src="streamUrl" />
+					</div>
+				</div>
+
+				<!-- Stats Tab -->
+				<div v-show="activeTab === 'stats'" class="tab-pane">
+					<DateRangePicker @submit="onDateSubmit" />
+					<StatsChart :stats="currentStats" v-if="currentStats.length > 0" />
+				</div>
+			</div>
 
 			<button @click="close">Close</button>
 		</div>
@@ -14,8 +33,16 @@
 </template>
 
 <script>
+import DateRangePicker from "./DateRangePicker.vue";
+import StatsChart from "./StatsChart.vue";
+import axios from "axios";
+
 export default {
 	name: "MarkerModal",
+	components: {
+		DateRangePicker,
+		StatsChart,
+	},
 	props: {
 		show: Boolean,
 		lat: [String, Number],
@@ -24,23 +51,50 @@ export default {
 			type: String,
 			default: null,
 		},
+		markerId: {
+			type: [Number, String],
+			required: true,
+		},
+	},
+	data() {
+		return {
+			activeTab: "stream",
+			currentStats: [],
+		};
+	},
+	methods: {
+		async fetchStats(start = null, end = null) {
+			try {
+				let url = `http://localhost:8000/api/v1/markers/stats/${this.markerId}`;
+				if (start && end) {
+					url += `?start_date=${start}&end_date=${end}`;
+				}
+
+				const response = await axios.get(url);
+				this.currentStats = response.data.stats;
+			} catch (error) {
+				console.error("Failed to load stats:", error);
+				this.currentStats = [];
+			}
+		},
+		onDateSubmit({ start, end }) {
+			this.fetchStats(start, end);
+		},
+		close() {
+			this.$emit("update:show", false);
+		},
 	},
 	watch: {
 		show(newVal) {
-			if (this.$refs.videoPlayer) {
-				if (newVal) {
-					this.$refs.videoPlayer.play().catch((err) => {
-						console.error("Video autoplay failed:", err);
-					});
-				} else {
-					this.$refs.videoPlayer.pause();
-				}
+			if (newVal) {
+				this.fetchStats();
 			}
 		},
-	},
-	methods: {
-		close() {
-			this.$emit("update:show", false);
+		tabChange(newVal) {
+			if (newVal) {
+				this.activeTab = "stream";
+				this.fetchStats();
+			}
 		},
 	},
 };
@@ -73,6 +127,40 @@ export default {
 	gap: 1rem;
 }
 
+.tabs {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.tab {
+	background: none;
+	border: none;
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+}
+
+.tab.active {
+	border-bottom: 2px solid #2c3e50;
+	font-weight: bold;
+	color: #2c3e50;
+}
+
+.modal-content {
+	max-height: 60vh;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.tab-pane {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
 button {
 	margin: auto;
 	padding: 0.5rem 1rem;
@@ -85,7 +173,7 @@ button {
 	width: 100%;
 	aspect-ratio: 16 / 9; /* Ensures consistent video proportions */
 	background-color: black;
-	overflow: hidden;
+	/* overflow: hidden; */
 	border-radius: 8px;
 	object-fit: cover;
 }

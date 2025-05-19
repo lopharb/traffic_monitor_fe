@@ -23,6 +23,7 @@
 						:show="isModalOpen"
 						:lat="selectedMarker.position[0]"
 						:lng="selectedMarker.position[1]"
+						:marker-id="selectedMarker.id"
 						:stream-url="selectedMarker.streamUrl"
 						@update:show="handleModalClose"
 					/>
@@ -89,7 +90,6 @@ export default {
 			this.center = marker.position;
 			this.zoom = 17; // Optional: zoom in on selection
 			if (this.$refs.map) {
-				console.log("here");
 				const map = this.$refs.map;
 				map.setView(this.center, this.zoom); // Zoom level 17
 			}
