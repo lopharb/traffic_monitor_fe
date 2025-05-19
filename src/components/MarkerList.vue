@@ -4,7 +4,13 @@
 		<input v-model="searchQuery" placeholder="Search markers..." class="search-input" />
 
 		<ul class="marker-list">
-			<li v-for="(marker, index) in filteredMarkers" :key="index" class="marker-item" @click="selectMarker(marker)">
+			<li
+				v-for="(marker, index) in filteredMarkers"
+				:key="index"
+				class="marker-item"
+				:class="{ highlighted: marker.isCrash }"
+				@click="selectMarker(marker)"
+			>
 				{{ marker.name || `Marker ${index + 1}` }}
 			</li>
 		</ul>
@@ -72,6 +78,14 @@ export default {
 	cursor: pointer;
 	border-bottom: 1px solid #eee;
 	border-radius: 5px;
+}
+.marker-item.highlighted {
+	color: #d63031;
+	background-color: #f5a8a8;
+	border-left: 4px solid #d63031;
+
+	color: white;
+	font-weight: bold;
 }
 
 .marker-item:hover {

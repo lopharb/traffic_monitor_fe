@@ -1,5 +1,10 @@
 <!-- src/views/Home.vue -->
 <template>
+	<div class="notification-container">
+		<div v-for="notif in notifications" :key="notif.id" class="notification">
+			{{ notif.message }}
+		</div>
+	</div>
 	<table class="content-table">
 		<tr>
 			<td style="width: 80%">
@@ -61,10 +66,15 @@ export default {
 			markers: [],
 			selectedMarker: null,
 			isModalOpen: false,
+
+			crashMarkers: new Set(), // Store markers with crashes
+			crashCheckInterval: null,
+			notifications: [],
 		};
 	},
 	mounted() {
 		this.fetchMarkers();
+		this.startCrashPolling();
 	},
 	methods: {
 		async fetchMarkers() {
@@ -73,6 +83,7 @@ export default {
 				this.markers = response.data.map((m) => ({
 					...m,
 					streamUrl: `http://localhost:8000/api/v1/${m.streamUrl}/${m.id}`,
+					isCrash: false,
 				}));
 			} catch (error) {
 				console.error("Failed to fetch markers:", error);
@@ -96,6 +107,58 @@ export default {
 				const map = this.$refs.map;
 				map.setView(this.center, this.zoom); // Zoom level 17
 			}
+		},
+
+		startCrashPolling() {
+			this.stopCrashPolling();
+
+			this.crashCheckInterval = setInterval(async () => {
+				for (const marker of this.markers) {
+					try {
+						const response = await axios.get(`http://localhost:8000/api/v1/crash/predict_frame/${marker.id}`);
+						const { is_crash, confidence } = response.data;
+						if (marker.isCrash != is_crash) {
+							if (is_crash) {
+								this.handleCrashDetected(marker, confidence);
+							}
+						}
+						marker.isCrash = is_crash;
+					} catch (error) {
+						console.error(`Error checking crash for ${marker.id}:`, error);
+					}
+				}
+			}, 60000); // every minute
+		},
+
+		stopCrashPolling() {
+			if (this.crashCheckInterval) {
+				clearInterval(this.crashCheckInterval);
+				this.crashCheckInterval = null;
+			}
+		},
+
+		handleCrashDetected(marker, confidence) {
+			console.log(`Crash detected at marker "${marker.name || `ID: ${marker.id}`}" (Confidence: ${confidence * 100}%)`);
+			if (!this.crashMarkers.has(marker.id)) {
+				this.crashMarkers.add(marker.id);
+				this.showNotification(marker, confidence);
+			}
+		},
+
+		showNotification(marker, confidence) {
+			const notification = {
+				id: Date.now(),
+				message: `⚠️ Crash detected at marker "${marker.name || `ID: ${marker.id}`}" (Confidence: ${(
+					confidence * 100
+				).toFixed(2)}%)`,
+			};
+
+			this.notifications.push(notification);
+
+			// Auto-remove after 5 sec
+			setTimeout(() => {
+				this.notifications = this.notifications.filter((n) => n.id !== notification.id);
+			}, 5000);
 		},
 	},
 };
@@ -123,5 +186,43 @@ export default {
 	width: 100%;
 	height: 100%;
 	border-radius: 0 10px 10px 0;
+}
+
+.notification-container {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999;
+	pointer-events: none; /* Allows clicking through */
+}
+
+.notification {
+	background-color: #e74c3c;
+	color: white;
+	padding: 1rem 2rem;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	animation: slideIn 0.3s ease forwards, fadeOut 2s ease forwards 3s;
+	pointer-events: auto; /* Make clickable if needed */
+	min-width: 300px;
+	text-align: center;
+	margin-bottom: 1rem;
+}
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+@keyframes fadeOut {
+	to {
+		opacity: 0;
+		transform: scale(0.9);
+	}
 }
 </style>
