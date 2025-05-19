@@ -1,12 +1,13 @@
 <template>
 	<div class="date-range-picker">
-		<label>Start Date</label>
-		<input type="date" v-model="startDate" />
+		<label>Select Date Range</label>
 
-		<label>End Date</label>
-		<input type="date" v-model="endDate" />
-
-		<button @click="submit">Apply</button>
+		<div class="inputs">
+			<input type="date" v-model="startDate" />
+			<span>—</span>
+			<input type="date" v-model="endDate" />
+			<button @click="submit">Apply</button>
+		</div>
 	</div>
 </template>
 
@@ -21,7 +22,11 @@ export default {
 	},
 	methods: {
 		submit() {
-			this.$emit("submit", { start: this.startDate, end: this.endDate });
+			// Emit as ISO strings (YYYY-MM-DD)
+			this.$emit("submit", {
+				start: this.startDate,
+				end: this.endDate,
+			});
 		},
 	},
 };
@@ -35,14 +40,29 @@ export default {
 	margin-bottom: 1rem;
 }
 
+.inputs {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
 input[type="date"] {
 	padding: 0.5rem;
 	font-size: 1rem;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+span {
+	color: #666;
 }
 
 button {
 	padding: 0.5rem;
 	background-color: #2c3e50;
+	width: 100%;
+	height: 100%;
 	color: white;
 	border: none;
 	cursor: pointer;
