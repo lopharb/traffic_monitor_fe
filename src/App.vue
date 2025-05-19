@@ -1,13 +1,13 @@
 <!-- src/App.vue -->
 <template>
 	<div id="app">
-		<HeaderComponent />
+		<HeaderComponent v-if="$route.path !== '/auth'" />
 
 		<main class="app-content">
 			<router-view />
 		</main>
 
-		<FooterComponent />
+		<FooterComponent v-if="$route.path !== '/auth'" />
 	</div>
 </template>
 
@@ -42,9 +42,5 @@ body {
 	height: 100%;
 	font-family: sans-serif;
 	background-color: #f9f9f9;
-}
-.app-content {
-	flex: 1;
-	padding: 1rem 2rem;
 }
 </style>

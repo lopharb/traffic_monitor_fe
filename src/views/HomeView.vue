@@ -107,10 +107,10 @@ export default {
 }
 .content-table {
 	display: table;
-	width: 100%;
-	height: 100%;
+	width: 98%;
+	height: 98%;
 	table-layout: fixed;
-	margin: 10px;
+	margin: 1%;
 }
 .map-container {
 	width: 100%;
