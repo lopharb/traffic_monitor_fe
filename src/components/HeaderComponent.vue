@@ -4,7 +4,7 @@
 		<h1>🗺️ My Map App</h1>
 		<nav>
 			<router-link to="/">Home</router-link> |
-			<router-link to="/about">About</router-link>
+			<a href="#" @click.prevent="logout">Logout</a>
 		</nav>
 	</header>
 </template>
@@ -12,6 +12,12 @@
 <script>
 export default {
 	name: "HeaderComponent",
+	methods: {
+		logout() {
+			localStorage.removeItem("token");
+			this.$router.push("/auth");
+		},
+	},
 };
 </script>
 

@@ -12,6 +12,8 @@
 				:title="isLogin ? 'Sign In' : 'Create Account'"
 				:subtitle="isLogin ? 'Enter your credentials' : 'Fill in your details'"
 			>
+				<!-- Show error message -->
+
 				<form @submit.prevent="handleSubmit" class="auth-form">
 					<!-- Register fields -->
 					<input v-model="form.email" type="email" placeholder="Email" v-if="!isLogin" required />
@@ -19,6 +21,9 @@
 					<!-- Common fields -->
 					<input v-model="form.username" placeholder="Username" required />
 					<input v-model="form.password" type="password" placeholder="Password" required />
+					<div v-if="errorMessage" class="error-message">
+						{{ errorMessage }}
+					</div>
 
 					<!-- Submit Button -->
 					<button type="submit">{{ isLogin ? "Log In" : "Register" }}</button>
@@ -52,6 +57,7 @@ export default {
 				email: "",
 				password: "",
 			},
+			errorMessage: null,
 		};
 	},
 	methods: {
@@ -75,15 +81,15 @@ export default {
 
 				const data = await response.json();
 
-				// Save token and redirect
-				if (data.access_token) {
-					localStorage.setItem("token", data.access_token);
-				}
-
+				localStorage.setItem("token", data.access_token);
 				this.$router.push("/");
 			} catch (error) {
-				alert(`${this.isLogin ? "Login" : "Registration"} failed`);
-				console.error(error);
+				this.errorMessage = this.isLogin ? "Invalid credentials" : "Registration failed";
+
+				// Optional: auto-hide after 5s
+				setTimeout(() => {
+					this.errorMessage = null;
+				}, 5000);
 			}
 		},
 	},
@@ -170,5 +176,16 @@ export default {
 	color: #2c3e50;
 	text-decoration: underline;
 	cursor: pointer;
+}
+
+.error-message {
+	color: #d63031;
+	background-color: #f5a8a8;
+	padding: 0.75rem 1rem;
+	border-left: 4px solid #d63031;
+	margin-bottom: 1rem;
+	font-size: 0.95rem;
+	text-align: left;
+	border-radius: 6px;
 }
 </style>
