@@ -70,9 +70,12 @@ export default {
 			crashMarkers: new Set(), // Store markers with crashes
 			crashCheckInterval: null,
 			notifications: [],
+			alertSound: null,
+			isMuted: true,
 		};
 	},
 	mounted() {
+		this.alertSound = new Audio(require("@/assets/alert.wav"));
 		this.fetchMarkers();
 		this.startCrashPolling();
 	},
@@ -127,7 +130,7 @@ export default {
 						console.error(`Error checking crash for ${marker.id}:`, error);
 					}
 				}
-			}, 60000); // every minute
+			}, 10000); // every minute
 		},
 
 		stopCrashPolling() {
@@ -152,13 +155,23 @@ export default {
 					confidence * 100
 				).toFixed(2)}%)`,
 			};
+			this.playAlertSound();
 
 			this.notifications.push(notification);
 
 			// Auto-remove after 5 sec
 			setTimeout(() => {
-				this.notifications = this.notifications.filter((n) => n.id !== notification.id);
+				this.notifications = [];
 			}, 5000);
+		},
+		playAlertSound() {
+			if (this.isMuted) return;
+			try {
+				this.alertSound.currentTime = 0; // Rewind to start
+				this.alertSound.play();
+			} catch (e) {
+				console.warn("Could not play sound:", e);
+			}
 		},
 	},
 };

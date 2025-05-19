@@ -87,6 +87,14 @@ export default {
 	color: white;
 	font-weight: bold;
 }
+.marker-item.highlighted:hover {
+	color: #d63031;
+	background-color: #f4cdcd;
+	border-left: 4px solid #d63031;
+
+	color: white;
+	font-weight: bold;
+}
 
 .marker-item:hover {
 	background-color: #f0f0f0;
