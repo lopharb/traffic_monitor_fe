@@ -70,7 +70,10 @@ export default {
 		async fetchMarkers() {
 			try {
 				const response = await axios.get("http://localhost:8000/api/v1/markers");
-				this.markers = response.data.map((m) => ({ ...m, streamUrl: `http://localhost:8000/api/v1/${m.streamUrl}` }));
+				this.markers = response.data.map((m) => ({
+					...m,
+					streamUrl: `http://localhost:8000/api/v1/${m.streamUrl}/${m.id}`,
+				}));
 			} catch (error) {
 				console.error("Failed to fetch markers:", error);
 			}
