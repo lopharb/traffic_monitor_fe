@@ -1,7 +1,7 @@
 <template>
 	<div class="marker-list-container">
-		<h2>Markers</h2>
-		<input v-model="searchQuery" placeholder="Search markers..." class="search-input" />
+		<h2>Камеры</h2>
+		<input v-model="searchQuery" placeholder="Поиск..." class="search-input" />
 
 		<ul class="marker-list">
 			<li

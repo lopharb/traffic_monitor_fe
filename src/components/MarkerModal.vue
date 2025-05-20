@@ -1,14 +1,12 @@
 <template>
 	<div v-if="show" class="modal-overlay" @click.self="close">
 		<div class="modal">
-			<h2>Marker Details</h2>
-			<p><strong>Latitude:</strong> {{ lat }}</p>
-			<p><strong>Longitude:</strong> {{ lng }}</p>
+			<h2>Подробности</h2>
 
 			<!-- Tabs -->
 			<div class="tabs">
-				<button :class="['tab', { active: activeTab === 'stream' }]" @click="activeTab = 'stream'">Stream</button>
-				<button :class="['tab', { active: activeTab === 'stats' }]" @click="activeTab = 'stats'">Stats</button>
+				<button :class="['tab', { active: activeTab === 'stream' }]" @click="activeTab = 'stream'">Камера</button>
+				<button :class="['tab', { active: activeTab === 'stats' }]" @click="activeTab = 'stats'">Сатистика</button>
 			</div>
 
 			<!-- Content -->
@@ -27,7 +25,7 @@
 				</div>
 			</div>
 
-			<button @click="close">Close</button>
+			<button @click="close">Закрыть</button>
 		</div>
 	</div>
 </template>

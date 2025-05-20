@@ -151,7 +151,7 @@ export default {
 		showNotification(marker, confidence) {
 			const notification = {
 				id: Date.now(),
-				message: `⚠️ Crash detected at marker "${marker.name || `ID: ${marker.id}`}" (Confidence: ${(
+				message: `⚠️ Возможная авария на камере "${marker.name || `ID: ${marker.id}`}" (Вероятность: ${(
 					confidence * 100
 				).toFixed(2)}%)`,
 			};

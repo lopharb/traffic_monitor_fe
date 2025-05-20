@@ -2,15 +2,15 @@
 	<div class="auth-layout">
 		<!-- Left Panel -->
 		<div class="left-panel">
-			<h1>{{ isLogin ? "Welcome Back!" : "Join Us" }}</h1>
-			<p>{{ isLogin ? "Log in to access the dashboard." : "Sign up to get started." }}</p>
+			<h1>{{ isLogin ? "С возвращением!" : "Присоединьтесь к нам" }}</h1>
+			<p>{{ isLogin ? "Войдите, чтобы продолжить" : "Зарегистрируйтесь, чтобы начать" }}</p>
 		</div>
 
 		<!-- Right Panel -->
 		<div class="right-panel">
 			<AuthCard
-				:title="isLogin ? 'Sign In' : 'Create Account'"
-				:subtitle="isLogin ? 'Enter your credentials' : 'Fill in your details'"
+				:title="isLogin ? 'Вход' : 'Регистрация'"
+				:subtitle="isLogin ? 'Введите логин и пароль' : 'Заполните данные о себе'"
 			>
 				<!-- Show error message -->
 
@@ -19,20 +19,20 @@
 					<input v-model="form.email" type="email" placeholder="Email" v-if="!isLogin" required />
 
 					<!-- Common fields -->
-					<input v-model="form.username" placeholder="Username" required />
-					<input v-model="form.password" type="password" placeholder="Password" required />
+					<input v-model="form.username" placeholder="Имя пользователя" required />
+					<input v-model="form.password" type="password" placeholder="Пароль" required />
 					<div v-if="errorMessage" class="error-message">
 						{{ errorMessage }}
 					</div>
 
 					<!-- Submit Button -->
-					<button type="submit">{{ isLogin ? "Log In" : "Register" }}</button>
+					<button type="submit">{{ isLogin ? "Войти" : "Зарегистрироваться" }}</button>
 
 					<!-- Toggle Link -->
 					<p class="small-text">
-						{{ isLogin ? "Don't have an account?" : "Already have an account?" }}
+						{{ isLogin ? "Еще не зарегистрированы?" : "Уже есть аккаунт?" }}
 						<a href="#" @click.prevent="toggleMode">
-							{{ isLogin ? "Sign up" : "Log in" }}
+							{{ isLogin ? "Регистрация" : "Вход" }}
 						</a>
 					</p>
 				</form>

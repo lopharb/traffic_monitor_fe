@@ -1,12 +1,12 @@
 <template>
 	<div class="date-range-picker">
-		<label>Select Date Range</label>
+		<label>Выберите период времени</label>
 
 		<div class="inputs">
 			<input type="date" v-model="startDate" />
 			<span>—</span>
 			<input type="date" v-model="endDate" />
-			<button @click="submit">Apply</button>
+			<button @click="submit">Подтвердить</button>
 		</div>
 	</div>
 </template>

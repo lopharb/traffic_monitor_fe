@@ -1,7 +1,7 @@
 <!-- src/components/Footer.vue -->
 <template>
 	<footer class="app-footer">
-		<p>&copy; {{ year }} My Map App. All rights reserved.</p>
+		<p>&copy; {{ year }} TrafficControl. Все права защищены.</p>
 	</footer>
 </template>
 

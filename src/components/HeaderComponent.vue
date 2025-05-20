@@ -1,10 +1,10 @@
 <!-- src/components/Header.vue -->
 <template>
 	<header class="app-header">
-		<h1>🗺️ My Map App</h1>
+		<h1>🗺️ TrafficControl</h1>
 		<nav>
-			<router-link to="/">Home</router-link> |
-			<a href="#" @click.prevent="logout">Logout</a>
+			<router-link to="/">Главная</router-link> |
+			<a href="#" @click.prevent="logout">Выйти</a>
 		</nav>
 	</header>
 </template>
