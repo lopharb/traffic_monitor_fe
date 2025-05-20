@@ -22,6 +22,7 @@
 				<div v-show="activeTab === 'stats'" class="tab-pane">
 					<DateRangePicker @submit="onDateSubmit" />
 					<StatsChart :stats="currentStats" v-if="currentStats.length > 0" />
+					<button @click="exportToExcel" class="export-button">📥 Экспорт данных</button>
 				</div>
 			</div>
 
@@ -58,6 +59,8 @@ export default {
 		return {
 			activeTab: "stream",
 			currentStats: [],
+			startDate: null,
+			endDate: null,
 		};
 	},
 	methods: {
@@ -76,10 +79,46 @@ export default {
 			}
 		},
 		onDateSubmit({ start, end }) {
+			this.startDate = start;
+			this.endDate = end;
 			this.fetchStats(start, end);
 		},
 		close() {
 			this.$emit("update:show", false);
+		},
+		async exportToExcel() {
+			const start = this.startDate;
+			const end = this.endDate; // You can reuse your current range logic
+			const token = localStorage.getItem("token");
+
+			try {
+				let url = `http://localhost:8000/api/v1/markers/stats/${this.markerId}/export`;
+				if (start && end) {
+					url += `?start_date=${start}&end_date=${end}`;
+				}
+
+				const response = await fetch(url, {
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				if (!response.ok) throw new Error("Export failed");
+
+				const blob = await response.blob();
+				const downloadUrl = window.URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = downloadUrl;
+				a.download = `camera_${this.markerId}_stats.xlsx`;
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(downloadUrl);
+				a.remove();
+			} catch (error) {
+				console.error("Error exporting:", error);
+				alert("Failed to export stats");
+			}
 		},
 	},
 	watch: {
@@ -186,5 +225,19 @@ button {
 	border: none;
 	transform-origin: top left;
 	transition: transform 0.2s ease;
+}
+
+.export-button {
+	background-color: #27ae60;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.export-button:hover {
+	background-color: #2ecc71;
 }
 </style>
